@@ -1,4 +1,5 @@
 # WaveSurfer Peak Extractor API
+![Licecap](licecap.gif)
 
 A simple Node.js microservice that extracts audio peaks (suitable for [WaveSurfer](https://wavesurfer.xyz/) or other waveform visualizations) from an uploaded audio file. Uses [Express](https://github.com/expressjs/express) for handling HTTP requests and [FFMpeg](https://github.com/FFmpeg/FFmpeg) for audio processing.
 
