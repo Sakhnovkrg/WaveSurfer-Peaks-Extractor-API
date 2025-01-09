@@ -29,7 +29,7 @@ function runFFmpegCommand(ffmpegPath, args) {
       if (code === 0) {
         resolve();
       } else {
-        reject(new Error(`FFmpeg завершился с кодом ${code}`));
+        reject(new Error(`FFFmpeg exited with code ${code}`));
       }
     });
   });
@@ -45,7 +45,7 @@ app.post("/extract-peaks", upload.single("audio"), async (req, res) => {
 
   try {
     if (!req.file) {
-      return res.status(400).json({ error: "Файл не получен" });
+      return res.status(400).json({ error: "File not received" });
     }
 
     inputFile = req.file.path;
@@ -69,11 +69,11 @@ app.post("/extract-peaks", upload.single("audio"), async (req, res) => {
     ]);
 
     if (!fs.existsSync(outputFile)) {
-      throw new Error(`Файл PCM не создан: ${outputFile}`);
+      throw new Error(`PCM file not created: ${outputFile}`);
     }
     const stats = fs.statSync(outputFile);
     if (stats.size === 0) {
-      throw new Error(`Файл PCM пуст: ${outputFile}`);
+      throw new Error(`PCM file is empty: ${outputFile}`);
     }
 
     const rawData = fs.readFileSync(outputFile);
@@ -103,7 +103,7 @@ app.post("/extract-peaks", upload.single("audio"), async (req, res) => {
     const normalizedPeaks = [peaks];
     return res.json({ peaks: normalizedPeaks });
   } catch (error) {
-    console.error("Ошибка при извлечении пиков:", error);
+    console.error("Error extracting peaks:", error);
     return res.status(500).json({ error: error.message });
   } finally {
     if (inputFile && fs.existsSync(inputFile)) {
@@ -117,5 +117,5 @@ app.post("/extract-peaks", upload.single("audio"), async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Сервер запущен на порту ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
