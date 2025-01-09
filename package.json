@@ -1,0 +1,30 @@
+{
+  "name": "wavesurfer-peaks-extractor-api",
+  "version": "1.0.0",
+  "description": "A simple Node.js microservice that extracts audio peaks (suitable for WaveSurfer) or other waveform visualizations",
+  "keywords": [
+    "wavesurfer",
+    "audio",
+    "waveform",
+    "peaks",
+    "api",
+    "microservice"
+  ],
+  "license": "MIT",
+  "author": "Sakhnovkrg <sakhnov.krg@gmail.com>",
+  "bugs": {
+    "url": "https://github.com/Sakhnovkrg/WaveSurfer-Peaks-Extractor-API/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sakhnovkrg/WaveSurfer-Peaks-Extractor-API"
+  },
+  "scripts": {
+    "start": "node src/app.js",
+    "nodemon": "nodemon src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.1"
+  }
+}

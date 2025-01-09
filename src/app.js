@@ -1,0 +1,121 @@
+const express = require("express");
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
+const { spawn } = require("child_process");
+
+const UPLOADS_DIR = path.join(__dirname, "../tmp");
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+
+const app = express();
+
+const upload = multer({ dest: UPLOADS_DIR });
+
+function runFFmpegCommand(ffmpegPath, args) {
+  return new Promise((resolve, reject) => {
+    const ffmpeg = spawn(ffmpegPath, args);
+
+    ffmpeg.on("error", (error) => {
+      reject(error);
+    });
+
+    ffmpeg.stderr.on("data", (data) => {
+      console.error("FFmpeg stderr:", data.toString());
+    });
+
+    ffmpeg.on("close", (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`FFmpeg завершился с кодом ${code}`));
+      }
+    });
+  });
+}
+
+app.get("/", (req, res) => {
+  res.json({ status: "ok" });
+});
+
+app.post("/extract-peaks", upload.single("audio"), async (req, res) => {
+  let inputFile;
+  let outputFile;
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "Файл не получен" });
+    }
+
+    inputFile = req.file.path;
+    outputFile = path.join(UPLOADS_DIR, `${req.file.filename}.pcm`);
+
+    await runFFmpegCommand("ffmpeg", [
+      "-y",
+      "-analyzeduration",
+      "100M",
+      "-probesize",
+      "100M",
+      "-i",
+      inputFile,
+      "-f",
+      "s16le",
+      "-ac",
+      "1",
+      "-ar",
+      "44100",
+      outputFile,
+    ]);
+
+    if (!fs.existsSync(outputFile)) {
+      throw new Error(`Файл PCM не создан: ${outputFile}`);
+    }
+    const stats = fs.statSync(outputFile);
+    if (stats.size === 0) {
+      throw new Error(`Файл PCM пуст: ${outputFile}`);
+    }
+
+    const rawData = fs.readFileSync(outputFile);
+    const samples = new Int16Array(rawData.buffer);
+
+    const peakCount = 512;
+    const blockSize = Math.floor(samples.length / peakCount);
+    const peaks = [];
+
+    for (let peakIndex = 0; peakIndex < peakCount; peakIndex++) {
+      const start = peakIndex * blockSize;
+      let end = start + blockSize;
+      if (end > samples.length) {
+        end = samples.length;
+      }
+
+      let localMax = 0;
+      for (let i = start; i < end; i++) {
+        if (Math.abs(samples[i]) > localMax) {
+          localMax = Math.abs(samples[i]);
+        }
+      }
+      const normalized = localMax / 32768;
+      peaks.push(normalized);
+    }
+
+    const normalizedPeaks = [peaks];
+    return res.json({ peaks: normalizedPeaks });
+  } catch (error) {
+    console.error("Ошибка при извлечении пиков:", error);
+    return res.status(500).json({ error: error.message });
+  } finally {
+    if (inputFile && fs.existsSync(inputFile)) {
+      fs.unlinkSync(inputFile);
+    }
+    if (outputFile && fs.existsSync(outputFile)) {
+      fs.unlinkSync(outputFile);
+    }
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Сервер запущен на порту ${PORT}`);
+});
