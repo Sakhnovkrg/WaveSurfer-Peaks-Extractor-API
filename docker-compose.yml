@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.dev
-    container_name: my-peak-service-dev
+    container_name: wavesurfer-peak-extractor-api-dev
     ports:
       - ${DEV_PORT:-3000}:3000
     volumes:
@@ -16,7 +16,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    container_name: my-peak-service-prod
+    container_name: wavesurfer-peak-extractor-api-dev
     ports:
       - ${PROD_PORT:-3001}:3000
     environment:
