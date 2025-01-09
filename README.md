@@ -56,3 +56,4 @@ Or run everything in [Docker](https://www.docker.com/) (with FFmpeg included).
    ```bash
    docker-compose up prod -d
    ```
+[DockerHub Repository](https://hub.docker.com/r/sakhnovkrg/wavesurfer-peaks-extractor-api-prod)

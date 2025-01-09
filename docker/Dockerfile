@@ -1,7 +1,7 @@
-FROM node:18
-RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+FROM node:18-alpine
+RUN apk add --no-cache ffmpeg
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm install --production
-COPY src/ ./src/
-CMD ["node", "src/app.js"]
+RUN npm install && npm install -g nodemon
+COPY . .
+CMD ["nodemon", "--watch", "src", "src/app.js"]
