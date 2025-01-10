@@ -90,6 +90,7 @@ app.post("/extract-peaks", upload.single("audio"), async (req, res) => {
         end = samples.length;
       }
 
+      /*
       let localMax = 0;
       for (let i = start; i < end; i++) {
         if (Math.abs(samples[i]) > localMax) {
@@ -97,6 +98,15 @@ app.post("/extract-peaks", upload.single("audio"), async (req, res) => {
         }
       }
       const normalized = localMax / 32768;
+      */
+      let localMax = -32768;
+      for (let i = start; i < end; i++) {
+        if (samples[i] > localMax) {
+          localMax = samples[i];
+        }
+      }
+      const normalized = localMax / 32768;
+
       peaks.push(normalized);
     }
 
