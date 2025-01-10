@@ -48,6 +48,17 @@ app.post("/extract-peaks", upload.single("audio"), async (req, res) => {
       return res.status(400).json({ error: "File not received" });
     }
 
+    let peakCount = parseInt(req.query.peakCount, 10);
+    if (isNaN(peakCount)) {
+      peakCount = 512;
+    }
+
+    if (isNaN(peakCount) || peakCount < 128 || peakCount > 4096) {
+      return res.status(400).json({
+        error: "Invalid peakCount. It must be a number between 64 and 4096.",
+      });
+    }
+
     inputFile = req.file.path;
     outputFile = path.join(UPLOADS_DIR, `${req.file.filename}.pcm`);
 
@@ -79,7 +90,6 @@ app.post("/extract-peaks", upload.single("audio"), async (req, res) => {
     const rawData = fs.readFileSync(outputFile);
     const samples = new Int16Array(rawData.buffer);
 
-    const peakCount = 512;
     const blockSize = Math.floor(samples.length / peakCount);
     const peaks = [];
 
@@ -90,15 +100,6 @@ app.post("/extract-peaks", upload.single("audio"), async (req, res) => {
         end = samples.length;
       }
 
-      /*
-      let localMax = 0;
-      for (let i = start; i < end; i++) {
-        if (Math.abs(samples[i]) > localMax) {
-          localMax = Math.abs(samples[i]);
-        }
-      }
-      const normalized = localMax / 32768;
-      */
       let localMax = -32768;
       for (let i = start; i < end; i++) {
         if (samples[i] > localMax) {

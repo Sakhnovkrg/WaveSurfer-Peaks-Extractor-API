@@ -43,7 +43,9 @@ Or run everything in [Docker](https://www.docker.com/) (with FFmpeg included).
 
 2. Send an audio file to the `/extract-peaks` endpoint:
    ```bash
-   curl -X POST -F audio=@/path/to/audio.wav http://localhost:3000/extract-peaks
+   # peakCount determines the number of peaks to extract (default: 512). Higher values provide more detailed data.
+
+   curl -X POST "http://localhost:3000/extract-peaks?peakCount=1024" -F "audio=@audiofile.wav"
    ```
    The response will be a JSON object containing an array of normalized peak values.
 
