@@ -16,7 +16,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    container_name: wavesurfer-peak-extractor-api-dev
+    container_name: wavesurfer-peak-extractor-api-prod
     ports:
       - ${PROD_PORT:-3001}:3000
     environment:
